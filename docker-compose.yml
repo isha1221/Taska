@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  taska-dev-db: #service name
+    image: postgres:16
+    ports:
+      - 5424:5432
+    environment:
+      POSTGRES_USER: ip_dev_db #user-name
+      POSTGRES_PASSWORD: ish@1234 #password
+      POSTGRES_DB:  taskadb # database name
+    networks:
+      - ipnet #network name
+networks:
+  ipnet:
+
+
