@@ -1,6 +1,7 @@
 import express, { Request, Response, response } from "express";
 import { createTask } from "./tasks/task.api";
 import { createUser } from "./users/users.signup";
+import { getUser } from "./users/user.login";
 
 const app = express();
 const port = 6969;
@@ -52,6 +53,25 @@ app.post("/user", async(req:Request,res:Response)=>{
   }
  
 })
+
+
+app.post("/user/login", async(req:Request,res:Response)=>{
+  try{
+    const user= await getUser(
+      req.body.username as string,
+      req.body.password as string,
+     
+    );
+    if(!user){
+     return res.json({error:"login fail"}).status(400);
+    }
+    res.json(user).status(200);
+  }catch (error: any){
+    res.status(500).json({ error: error.message });
+  }
+ 
+})
+
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
