@@ -1,79 +1,186 @@
-import express, { Request, Response, response } from "express";
-import { createTask } from "./tasks/task.api";
+import express, { Request, Response } from "express";
+import { createTask } from "./tasks/create.task.";
 import { createUser } from "./users/users.signup";
 import { getUser } from "./users/user.login";
+import { deleteUser } from "./users/delete.user";
+import { getTask } from "./tasks/get.task";
+import { getTasksForUser } from "./tasks/get.user.task";
+import { deleteTask } from "./tasks/delete.task";
+import { updateTask } from "./tasks/update.task";
+
 
 const app = express();
 const port = 6969;
 
-interface TaskInput {
-  userId: number;
-  task: string;
-  status: string;
-  startTime: Date;
-  endTime: Date;
-}
-app.use(express.json());//middelware to accept /access the json request body
+// Middleware to accept JSON request bodies
+app.use(express.json());
+
+// Example root endpoint
 app.get("/", (req: Request, res: Response) => {
-  // res.send('Hello World!');
-  return res.json({ heloooo: "hello world" });
+  res.status(200).json({ message: "Hello, world!" });
 });
 
+// Endpoint to create a new task
 app.post("/task", async (req: Request, res: Response) => {
   try {
-    // const taskInput = {
-    //   userId: req.body.userId,
-    //   task: req.body.task,
-    //   status: req.body.status,
-    // };
-    const newTask = await createTask(  //constant to store data returned by create task function
-      req.body.userId as number,
-      req.body.task as string,
-      req.body.status as string
+    const { userId, task, status } = req.body;
+
+    // Basic validation to check required fields
+    if (!userId || !task || !status) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const newTask = await createTask(userId as number, task as string, status as string);
+
+    res.status(201).json(newTask);
+  } catch (error: any) {
+    console.error("Error creating task:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Endpoint to create a new user
+app.post("/user/signup", async (req: Request, res: Response) => {
+  try {
+    const { username, fullName, email, branch, password, bio } = req.body;
+
+    // Basic validation to check required fields
+    if (!username || !fullName || !email || !password) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const newUser = await createUser(
+      username,
+      fullName,
+      email,
+      branch,
+      password,
+      bio
     );
+
+    res.status(201).json(newUser);
+  } catch (error: any) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint to log in a user
+app.post("/user/login", async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body; // Changed to 'email' since login typically uses email
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const user = await getUser(email, password);
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    res.status(200).json(user);
+  } catch (error: any) {
+    console.error("Error logging in:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//get single user
+app.post("/user/delete", async (req: Request, res: Response) => {
+  if(!req.body.consent){
+    res.status(400).json({
+      error:"don't you want to delete your account mand"
+    })
+  }
+  else if(req.body.consent==false){
+    res.status(400).json({
+      error:"don't you want to delete your account mand"
+    })
+  }
+  else{
+  deleteUser(req,res);
+  res.status(200).json({
+    error:"user deleted successfully"
+  })
+ }
+  
+
+});
+// a1abbce6-66a8-461a-acec-aa83930e5fc3
+// Endpoint to get a task by its ID
+app.post("/task", async (req: Request, res: Response) => {
+  try {
+    const { userId, task, status } = req.body;
+
+    if (!userId || !task || !status) {
+      return res.status(400).json({ error: "Required fields are missing" });
+    }
+
+    const newTask = await createTask(userId, task, status);
     res.status(201).json(newTask);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post("/user", async(req:Request,res:Response)=>{
-  try{
-    const user= await createUser(
-      req.body.username as string,
-      req.body.fullName as string,
-      req.body.email as string,
-      req.body.branch as string,
-      req.body.password as string,
-      req.body.bio as string,
-    );
-    res.json(user).status(201);
-  }catch (error: any){
-    res.status(500).json({ error: error.message });
-  }
- 
-})
+app.get("/task/:taskId", async (req: Request, res: Response) => {
+  try {
+    const { taskId } = req.params;
 
-
-app.post("/user/login", async(req:Request,res:Response)=>{
-  try{
-    const user= await getUser(
-      req.body.username as string,
-      req.body.password as string,
-     
-    );
-    if(!user){
-     return res.json({error:"login fail"}).status(400);
+    if (!taskId) {
+      return res.status(400).json({ error: "Task ID is required" });
     }
-    res.json(user).status(200);
-  }catch (error: any){
-    res.status(500).json({ error: error.message });
+
+    const task = await getTask(req, res);
+  } catch (error: any) {
+    res.status(500).json({ error: "Internal server error" });
   }
- 
-})
+});
+
+app.put("/task/:taskId", async (req: Request, res: Response) => {
+  try {
+    const { taskId } = req.params;
+
+    if (!taskId) {
+      return res.status(400).json({ error: "Task ID is required" });
+    }
+
+    const updatedTask = await updateTask(req, res);
+    res.status(200).json(updatedTask);
+  } catch (error: any) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.delete("/task/:taskId", async (req: Request, res: Response) => {
+  try {
+    const { taskId } = req.params;
+
+    if (!taskId) {
+      return res.status(400).json({ error: "Task ID is required" });
+    }
+
+    await deleteTask(req, res);
+  } catch (error: any) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/tasks", async (req: Request, res: Response) => {
+  try {
+    const tasks = await getTasksForUser(req, res);
+    res.status(200).json(tasks);
+  } catch (error: any) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
+
+
+// Start the server
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
-
