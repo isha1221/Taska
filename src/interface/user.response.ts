@@ -12,3 +12,15 @@ export interface UserResponse {
   milestonesAchieved: number;
   rank: number;
 }
+
+export interface FriendResponse{
+  id: number;
+  username: string;
+  fullName: string;
+  email: string;
+  branch: string;
+  rank: number;
+
+}
+
+export type FriendListResponse= FriendResponse[];

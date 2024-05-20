@@ -1,11 +1,20 @@
+import { FriendResponse } from "../interface/user.response";
 import { getSingleUser } from "./get.user";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export const getFriendList = async (userId: number) => {
+export const getFriendList = async (userId: number):Promise<FriendResponse[]> => {
   const user = await getSingleUser(userId);
 
-  const friendList = prisma.user.findMany({
+  const friendList = await prisma.user.findMany({
+    select:{
+      id: true,
+      username: true,
+      fullName: true,
+      email: true,
+      branch: true,
+      rank: true,
+    },
     where: {
       branch: user?.branch,
       id: {
@@ -14,7 +23,17 @@ export const getFriendList = async (userId: number) => {
     },
   });
   if (!friendList) {
-    return Error("friend list not found");
+    throw new Error("friend list not found");
   }
-  return friendList;
+  const friends: FriendResponse[]= friendList.map((friend)=>
+    ({
+      id: friend.id,
+      username: friend.username,
+      fullName: friend.fullName,
+      email: friend.email,
+      branch: friend.branch,
+      rank: friend.rank,
+    })
+  )
+  return friends;
 };

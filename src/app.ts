@@ -11,7 +11,7 @@ import cookieParser from "cookie-parser";
 import { authenticateUser } from "./middleware/middleware";
 import { getAuthUser } from "./users/get.auth";
 import { getFriendList } from "./users/friendlist";
-import { UserResponse } from "./interface/user.response";
+import {  FriendListResponse, UserResponse } from "./interface/user.response";
 
 const app = express();
 const port = 6969;
@@ -69,8 +69,22 @@ app.post("/user/signup", async (req: Request, res: Response) => {
       password,
       bio
     );
+    const userResponse: UserResponse = {
+      id: newUser.user.id,
+      username: newUser.user.username,
+      fullName: newUser.user.fullName,
+      email: newUser.user.email,
+      branch: newUser.user.branch,
+      bio: newUser.user.bio,
+      totalTasks: newUser.user.totalTasks,
+      pendingTask: newUser.user.pendingTask,
+      inTimeCompletdTask: newUser.user.inTimeCompletedTask,
+      overTimecompletedTask: newUser.user.overTimecompletedTask,
+      milestonesAchieved: newUser.user.milestonesAchieved,
+      rank: newUser.user.rank,
+    };
     res.cookie("token", newUser.token);
-    res.status(201).json(newUser.user);
+    res.status(201).json(userResponse);
   } catch (error: any) {
     console.error("Error creating user:", error);
     res.status(500).json({ error: error.message });
@@ -133,19 +147,22 @@ app.post(
   }
 );
 
-app.get("/friendlist", async (req: Request, res: Response) => {
+app.get("/friendlist", authenticateUser, async (req: Request, res: Response) => { // Changed to POST for handling body data
   try {
     const { userId } = req.body;
     if (!userId) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-    const friendList = await getFriendList(userId);
+
+    const friendList: FriendListResponse = await getFriendList(userId);
+    
     res.status(200).json(friendList);
   } catch (error: any) {
-    console.error("friend not found:", error);
-    res.status(404).json({ error: error.message });
+    console.error("Error fetching friend list:", error);
+    res.status(500).json({ error: error.message });
   }
 });
+
 
 app.get(
   "/task/:taskId",

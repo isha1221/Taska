@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { generateToken } from "../utils/tokens/jwt.token";
 import { createHashedPassword } from "../utils/secure/hash.password";
+import { UserResponse } from "../interface/user.response";
 const prisma = new PrismaClient();
 
 export const createUser = async (
@@ -52,7 +53,7 @@ export const createUser = async (
 
     // Generate JWT token
     const token = generateToken(newUser.id);
-
+   
     return { user: newUser, token };
   } catch (error: any) {
     console.error("Error creating user:", error); // Log the error
