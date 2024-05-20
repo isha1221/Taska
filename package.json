@@ -6,8 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node src/app.ts",
-    "dev":"nodemon"
-  
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +25,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.7",
     "@types/jsonwebtoken": "^9.0.6"
   }
 }

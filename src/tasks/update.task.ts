@@ -19,7 +19,8 @@ export const updateTask = async (req: Request, res: Response) => {
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
       data: {
-        task,
+        taskDescription:'This is task description',
+        taskTitle:task,
         status,
         startTime: startTime ? new Date(startTime) : undefined,
         endTime: endTime ? new Date(endTime) : undefined,

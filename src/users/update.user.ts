@@ -15,39 +15,34 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     const token = authHeader.split(" ")[1]; // Get the token part
+    
+    // Verify JWT token
     const decodedToken = jwt.verify(token, jwtSecret) as { userId: number };
-
     const { userId } = decodedToken;
-
-    const { fullName, email, branch, bio, password } = req.body;
 
     // Check if the user exists
     const user = await prisma.user.findUnique({ where: { id: userId } });
-
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Update the user fields, only if they are provided
-    const updatedData: Partial<{ fullName: string; email: string; branch: string; bio: string; hashedPassword: string }> = {};
+    // Extract update data
+    const { fullName, email, branch, bio, password } = req.body;
 
-    if (fullName) {
-      updatedData.fullName = fullName;
-    }
-    if (email) {
-      updatedData.email = email;
-    }
-    if (branch) {
-      updatedData.branch = branch;
-    }
-    if (bio) {
-      updatedData.bio = bio;
-    }
-    if (password) {
-      updatedData.hashedPassword = await bcrypt.hash(password, 10);
+    // Validate input data
+    if (!fullName && !email && !branch && !bio && !password) {
+      return res.status(400).json({ error: "No data provided for update" });
     }
 
-    // Update the user in the database
+    // Prepare updated data
+    const updatedData: { [key: string]: any } = {};
+    if (fullName) updatedData.fullName = fullName;
+    if (email) updatedData.email = email;
+    if (branch) updatedData.branch = branch;
+    if (bio) updatedData.bio = bio;
+    if (password) updatedData.hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user in the database
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: updatedData,
@@ -56,6 +51,9 @@ export const updateUser = async (req: Request, res: Response) => {
     res.status(200).json({ user: updatedUser });
   } catch (error: any) {
     console.error("Error updating user:", error);
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: "Invalid token" });
+    }
     res.status(500).json({ error: "Internal server error" });
   }
 };

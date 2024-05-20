@@ -8,7 +8,7 @@ const jwtSecret = process.env.JWT_SECRET || '';
 export const getSingleUser = async (req: Request, res: Response) => {
   try {
     // Extract JWT token from the request headers
-    const authHeader = req.headers.authorization;
+    const authHeader = req.headers.authorization;//need to change
     if (!authHeader) {
       return res.status(401).json({ error: "Unauthorized" });
     }

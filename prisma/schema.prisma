@@ -23,19 +23,24 @@ model User {
   hashedPassword String
   bio       String
   totalTasks Int
-  completedTasks Int
-  numberOfMilestones Int
+  pendingTask Int
+  inTimeCompletedTask Int
+  overTimecompletedTask Int
+  milestonesAchieved Int
 
-  // tasks     Task[]   
+  rank Int
+  tasks     Task[]   
 }
 
 model Task {
   id          String   @id @default(uuid())
-  userId     Int      @unique
-  task        String
+  userId     Int      
+  taskTitle        String
+  taskDescription  String
   status      String
-  startTime   DateTime
-  endTime     DateTime
+  startTime   DateTime?
+  endTime     DateTime?
+  completedTime DateTime?
 
-  // user        User  @relation(fields: [userId], references: [id])
+  user        User  @relation(fields: [userId], references: [id])
 }

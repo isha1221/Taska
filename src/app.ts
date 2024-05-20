@@ -23,14 +23,14 @@ app.get("/", (req: Request, res: Response) => {
 // Endpoint to create a new task
 app.post("/task", async (req: Request, res: Response) => {
   try {
-    const { userId, task, status } = req.body;
+    const { userId, taskTitle,taskDescription, status } = req.body;
 
     // Basic validation to check required fields
-    if (!userId || !task || !status) {
+    if (!userId || !taskTitle || !taskDescription || !status) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const newTask = await createTask(userId as number, task as string, status as string);
+    const newTask = await createTask(userId as number, taskTitle as string, taskDescription as string, status as string);
 
     res.status(201).json(newTask);
   } catch (error: any) {
@@ -112,13 +112,13 @@ app.post("/user/delete", async (req: Request, res: Response) => {
 // Endpoint to get a task by its ID
 app.post("/task", async (req: Request, res: Response) => {
   try {
-    const { userId, task, status } = req.body;
+    const { userId, taskDescription, taskTitle, status } = req.body;
 
-    if (!userId || !task || !status) {
+    if (!userId || !taskDescription ||!taskTitle || !status) {
       return res.status(400).json({ error: "Required fields are missing" });
     }
 
-    const newTask = await createTask(userId, task, status);
+    const newTask = await createTask(userId, taskDescription, taskTitle, status);
     res.status(201).json(newTask);
   } catch (error: any) {
     res.status(500).json({ error: error.message });

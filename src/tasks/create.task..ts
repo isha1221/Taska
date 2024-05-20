@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 
 export const createTask = async (
   userId: number,
-  task: string,
+  taskTitle:string,
+  taskDescription: string,
   status: string
 ) => {
   try {
@@ -15,7 +16,8 @@ export const createTask = async (
     const newTask = await prisma.task.create({
       data: {
         userId: userId,
-        task: task,
+        taskDescription: taskDescription,
+        taskTitle: taskTitle,
         status: status,
         startTime: new Date(Date.now()),
         endTime: new Date(Date.now() + 10 * 60 * 1000),
