@@ -1,13 +1,8 @@
-
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { config } from "dotenv"; // Import dotenv to load environment variables
-
-config(); // Load environment variables from .env file
-
+import { generateToken } from "../utils/tokens/jwt.token";
+import { createHashedPassword } from "../utils/secure/hash.password";
 const prisma = new PrismaClient();
-const jwtSecret = process.env.JWT_SECRET || ''; // Use environment variable for JWT secret
 
 export const createUser = async (
   username: string,
@@ -35,8 +30,8 @@ export const createUser = async (
     }
 
     const hashedPassword = await createHashedPassword(password);
-    
-    const rank = await prisma.user.count()
+
+    const rank = await prisma.user.count();
     console.log(rank);
     const newUser = await prisma.user.create({
       data: {
@@ -50,8 +45,8 @@ export const createUser = async (
         pendingTask: 0,
         inTimeCompletedTask: 0,
         overTimecompletedTask: 0,
-        milestonesAchieved:0,
-        rank:0,
+        milestonesAchieved: 0,
+        rank: 0,
       },
     });
 
@@ -64,12 +59,3 @@ export const createUser = async (
     throw new Error(`Error creating user: ${error.message}`);
   }
 };
-
-async function createHashedPassword(password: string): Promise<string> {
-  const saltRounds = 10; // Recommended number of salt rounds for bcrypt
-  return await bcrypt.hash(password, saltRounds);
-}
-
-function generateToken(userId: number): string {
-  return jwt.sign({ userId }, jwtSecret, { expiresIn: "1h" }); // Token expires in 1 hour
-}

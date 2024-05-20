@@ -1,15 +1,7 @@
-
-
-
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { config } from "dotenv"; // Import dotenv to load environment variables
-
-config(); // Load environment variables from .env file
-
+import { generateToken } from "../utils/tokens/jwt.token";
+import { verifyPassword } from "../utils/secure/verify.password";
 const prisma = new PrismaClient();
-const jwtSecret = process.env.JWT_SECRET || ''; // Use environment variable for JWT secret
 
 export const getUser = async (email: string, password: string) => {
   try {
@@ -23,8 +15,7 @@ export const getUser = async (email: string, password: string) => {
     if (!user) {
       throw new Error("Invalid email or password");
     }
-
-    const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
+    const passwordMatch = await verifyPassword(password, user.hashedPassword);
 
     if (!passwordMatch) {
       throw new Error("Invalid email or password");
@@ -32,15 +23,9 @@ export const getUser = async (email: string, password: string) => {
 
     // Generate JWT token
     const token = generateToken(user.id);
-
-    // Return the user data and the token
     return { user, token };
   } catch (error: any) {
     console.error("Error logging in:", error); // Log the error
     throw new Error(`Error logging in: ${error.message}`);
   }
 };
-
-function generateToken(userId: number): string {
-  return jwt.sign({ userId }, jwtSecret, { expiresIn: "1h" }); // Token expires in 1 hour
-}

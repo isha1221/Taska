@@ -8,8 +8,11 @@ CREATE TABLE "User" (
     "hashedPassword" TEXT NOT NULL,
     "bio" TEXT NOT NULL,
     "totalTasks" INTEGER NOT NULL,
-    "completedTasks" INTEGER NOT NULL,
-    "numberOfMilestones" INTEGER NOT NULL,
+    "pendingTask" INTEGER NOT NULL,
+    "inTimeCompletedTask" INTEGER NOT NULL,
+    "overTimecompletedTask" INTEGER NOT NULL,
+    "milestonesAchieved" INTEGER NOT NULL,
+    "rank" INTEGER NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -18,10 +21,12 @@ CREATE TABLE "User" (
 CREATE TABLE "Task" (
     "id" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
-    "task" TEXT NOT NULL,
+    "taskTitle" TEXT NOT NULL,
+    "taskDescription" TEXT NOT NULL,
     "status" TEXT NOT NULL,
-    "startTime" TIMESTAMP(3) NOT NULL,
-    "endTime" TIMESTAMP(3) NOT NULL,
+    "startTime" TIMESTAMP(3),
+    "endTime" TIMESTAMP(3),
+    "completedTime" TIMESTAMP(3),
 
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
 );
@@ -31,9 +36,6 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Task_userId_key" ON "Task"("userId");
 
 -- AddForeignKey
 ALTER TABLE "Task" ADD CONSTRAINT "Task_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
