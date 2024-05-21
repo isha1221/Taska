@@ -1,3 +1,5 @@
+
+import cors from 'cors'
 import express, { Request, Response } from "express";
 import { createTask } from "./tasks/create.task.";
 import { createUser } from "./users/users.signup";
@@ -17,6 +19,10 @@ const app = express();
 const port = 6969;
 
 // Middleware to accept JSON request bodies
+app.use(cors({
+  origin: 'http://localhost:5173', // Update this to match your frontend URL
+  credentials: true // Allow credentials (cookies) to be included in requests
+}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -117,7 +123,11 @@ app.post("/user/login", async (req: Request, res: Response) => {
       rank: user.user.rank,
     };
 
-    res.cookie("token", user.token);
+    res.cookie("token", user.token, {
+      httpOnly: true, // Make the cookie HTTP-only for security
+      secure: false, // Set to true if using HTTPS
+      sameSite: 'lax' // Adjust according to your needs
+    });
     res.status(200).json(userResponse);
   } catch (error: any) {
     console.error("Error logging in:", error);
@@ -147,7 +157,7 @@ app.post(
   }
 );
 
-app.get("/friendlist", authenticateUser, async (req: Request, res: Response) => { // Changed to POST for handling body data
+app.post("/friendlist", authenticateUser, async (req: Request, res: Response) => { // Changed to POST for handling body data
   try {
     const { userId } = req.body;
     if (!userId) {
