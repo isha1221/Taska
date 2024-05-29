@@ -8,7 +8,6 @@ export const verifyPassword = async (
     const match = await bcrypt.compare(password, hash);
     return match;
   } catch (error) {
-    console.error("Error verifying password:", error);
-    throw new Error("Password verification failed");
+    throw new Error(`Password verification failed: ${error}`);
   }
 };

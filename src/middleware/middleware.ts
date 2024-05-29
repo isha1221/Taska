@@ -23,8 +23,9 @@ export const authenticateUser = async (
     req.body.user = user;
     next();
   } catch (error) {
-    console.error("Error verifying token:", error);
     res.cookie("token", "", { maxAge: 0 });
-    return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    return res
+      .status(401)
+      .json({ error: "Unauthorized: Invalid token", msg: error });
   }
 };

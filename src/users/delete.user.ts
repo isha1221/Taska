@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
-const jwtSecret = process.env.JWT_SECRET || '';
+const jwtSecret = process.env.JWT_SECRET || "";
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
@@ -30,7 +30,6 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error: any) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error", msg: error });
   }
 };

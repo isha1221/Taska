@@ -1,26 +1,39 @@
 // import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
+const jwtSecret = process.env.JWT_SECRET || "";
 
 export const createTask = async (
-  userId: number,
-  taskTitle:string,
+  token: string,
+  taskTitle: string,
   taskDescription: string,
-  status: string
+  startTime: Date,
+  endTime: Date
 ) => {
+  const decodedToken = jwt.verify(token, jwtSecret) as { userId: number };
+  const { userId } = decodedToken;
   try {
-    // Check if userId is provided in the request body
-
-    // Create the task using Prisma
     const newTask = await prisma.task.create({
       data: {
-        userId: userId,
+        userId,
         taskDescription: taskDescription,
         taskTitle: taskTitle,
-        status: status,
-        startTime: new Date(Date.now()),
-        endTime: new Date(Date.now() + 10 * 60 * 1000),
+        startTime: startTime,
+        endTime: endTime,
+      },
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        totalTasks: {
+          increment: 1,
+        },
+        pendingTask: {
+          increment: 1,
+        },
       },
     });
 

@@ -23,7 +23,7 @@ CREATE TABLE "Task" (
     "userId" INTEGER NOT NULL,
     "taskTitle" TEXT NOT NULL,
     "taskDescription" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
+    "taskStatus" BOOLEAN NOT NULL,
     "startTime" TIMESTAMP(3),
     "endTime" TIMESTAMP(3),
     "completedTime" TIMESTAMP(3),

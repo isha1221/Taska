@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
-const jwtSecret = process.env.JWT_SECRET || '';
+const jwtSecret = process.env.JWT_SECRET || "";
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
@@ -15,7 +15,7 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     const token = authHeader.split(" ")[1]; // Get the token part
-    
+
     // Verify JWT token
     const decodedToken = jwt.verify(token, jwtSecret) as { userId: number };
     const { userId } = decodedToken;
@@ -50,10 +50,9 @@ export const updateUser = async (req: Request, res: Response) => {
 
     res.status(200).json({ user: updatedUser });
   } catch (error: any) {
-    console.error("Error updating user:", error);
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: "Invalid token" });
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ error: "Invalid token", msg: error });
     }
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error", msg: error });
   }
 };
