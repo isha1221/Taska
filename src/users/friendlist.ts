@@ -1,11 +1,17 @@
+import { PrismaClient } from "@prisma/client";
 import { FriendResponse } from "../interface/user.response";
 import { getSingleUser } from "./get.user";
-import { PrismaClient } from "@prisma/client";
+import jwt from "jsonwebtoken";
+
 const prisma = new PrismaClient();
+const jwtSecret = process.env.JWT_SECRET || "";
 
 export const getFriendList = async (
-  userId: number
+  token: string
 ): Promise<FriendResponse[]> => {
+  const decodedToken = jwt.verify(token, jwtSecret) as { userId: number };
+
+  const { userId } = decodedToken;
   const user = await getSingleUser(userId);
 
   const friendList = await prisma.user.findMany({

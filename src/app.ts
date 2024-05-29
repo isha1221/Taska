@@ -228,14 +228,13 @@ app.post(
   "/friendlist",
   authenticateUser,
   async (req: Request, res: Response) => {
-    // Changed to POST for handling body data
+    const token = req.cookies.token;
     try {
-      const { userId } = req.body;
-      if (!userId) {
+      if (!token) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const friendList: FriendListResponse = await getFriendList(userId);
+      const friendList: FriendListResponse = await getFriendList(token);
 
       res.status(200).json(friendList);
     } catch (error: any) {
